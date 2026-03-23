@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Creative Brief Builder</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f4f6;color:#1a1a1a;font-size:15px;}
+.wrap{max-width:740px;margin:0 auto;padding:2rem 1rem 4rem;}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;}
+.topbar h1{font-size:18px;font-weight:600;}
+.topbar-btns{display:flex;gap:8px;}
+.card{background:#fff;border-radius:12px;border:1px solid #e5e5e5;padding:1.75rem;margin-bottom:1.25rem;}
+h2{font-size:19px;font-weight:600;margin-bottom:1.25rem;}
+h3{font-size:15px;font-weight:600;margin-bottom:.75rem;}
+label{display:block;font-size:13px;font-weight:500;color:#555;margin-bottom:6px;}
+input[type=text],input[type=date],select,textarea{width:100%;padding:9px 11px;border-radius:7px;border:1px solid #ddd;font-family:inherit;font-size:14px;color:#1a1a1a;background:#fff;outline:none;transition:border .15s;}
+input:focus,select:focus,textarea:focus{border-color:#7F77DD;}
+textarea{resize:vertical;line-height:1.6;min-height:80px;}
+.field{margin-bottom:1.1rem;}
+.pill-group{display:flex;flex-wrap:wrap;gap:8px;}
+.pill{padding:6px 15px;border-radius:20px;border:1px solid #ddd;background:#fff;font-size:13px;cursor:pointer;font-family:inherit;color:#555;transition:all .15s;}
+.pill.on{border-color:#7F77DD;background:#EEEDFE;color:#3C3489;}
+.progress-bar{height:4px;background:#eee;border-radius:99px;margin-bottom:.6rem;}
+.progress-fill{height:4px;background:#7F77DD;border-radius:99px;transition:width .4s;}
+.section-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.5rem;}
+.sec-pill{padding:4px 11px;border-radius:20px;border:1px solid #ddd;font-size:12px;cursor:pointer;font-family:inherit;color:#777;background:#fff;}
+.sec-pill.active{border-color:#7F77DD;background:#EEEDFE;color:#3C3489;}
+.sec-pill.filled{background:#f5f5f5;}
+.btn{padding:10px 24px;border-radius:8px;border:none;background:#534AB7;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;}
+.btn:hover{background:#3C3489;}
+.btn:disabled{background:#AFA9EC;cursor:not-allowed;}
+.btn-sec{padding:9px 20px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#333;font-size:14px;cursor:pointer;font-family:inherit;}
+.btn-sec:hover{background:#f5f5f5;}
+.btn-sm{padding:6px 14px;border-radius:7px;border:none;background:#534AB7;color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;}
+.btn-sm:hover{background:#3C3489;}
+.btn-sm:disabled{background:#AFA9EC;cursor:not-allowed;}
+.btn-sm-sec{padding:6px 14px;border-radius:7px;border:1px solid #ddd;background:#fff;color:#333;font-size:13px;cursor:pointer;font-family:inherit;}
+.btn-sm-sec:hover{background:#f5f5f5;}
+.btn-danger{padding:6px 14px;border-radius:7px;border:1px solid #f5c1c1;background:#fff;color:#c0392b;font-size:13px;cursor:pointer;font-family:inherit;}
+.btn-danger:hover{background:#fff0f0;}
+.btn-ai{padding:5px 11px;border-radius:6px;border:1px solid #7F77DD;background:#EEEDFE;color:#3C3489;font-size:12px;cursor:pointer;font-family:inherit;}
+.btn-ai:hover{background:#dddaf8;}
+.nav{display:flex;justify-content:space-between;margin-top:1.25rem;gap:12px;}
+.success{padding:14px 18px;border-radius:8px;border:1px solid #9FE1CB;background:#E1F5EE;color:#0F6E56;font-size:14px;margin-bottom:1.25rem;}
+.download-box{padding:20px;border-radius:8px;background:#f9f9f9;border:1px solid #e5e5e5;margin-bottom:1.5rem;}
+.download-box p{font-size:13px;color:#555;margin-bottom:10px;line-height:1.6;}
+.script-table{width:100%;border-collapse:collapse;font-size:13px;}
+.script-table th{padding:8px 10px;text-align:left;font-size:12px;font-weight:600;color:#555;background:#f5f5f5;border-bottom:1px solid #e5e5e5;}
+.script-table td{padding:6px 8px;border-bottom:1px solid #f0f0f0;vertical-align:top;}
+.script-table textarea{min-height:56px;font-size:13px;}
+.del-btn{background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;padding:2px 6px;}
+.shot-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;}
+.shot-row select{width:auto;flex:0 0 175px;font-size:13px;padding:7px 8px;}
+.shot-row input{flex:1;font-size:13px;padding:7px 9px;}
+.shot-row .del-btn{flex:0 0 auto;margin-top:4px;}
+.equip-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.equip-row input{flex:1;font-size:13px;padding:7px 9px;}
+.saved-brief-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:8px;border:1px solid #e5e5e5;background:#fff;margin-bottom:8px;}
+.saved-brief-info{flex:1;}
+.saved-brief-name{font-size:15px;font-weight:600;margin-bottom:2px;}
+.saved-brief-meta{font-size:12px;color:#888;}
+.saved-brief-actions{display:flex;gap:8px;flex-shrink:0;}
+.admin-overlay,.ai-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;z-index:999;padding:2rem 1rem;overflow-y:auto;}
+.admin-box,.ai-box{background:#fff;border-radius:12px;width:100%;max-width:700px;padding:1.75rem;}
+.ai-box{max-width:540px;}
+.type-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;border:1px solid #ddd;margin:0 6px 6px 0;font-size:13px;cursor:pointer;}
+.type-pill.active{border-color:#7F77DD;background:#EEEDFE;color:#3C3489;}
+.field-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.field-row input{flex:1;}
+.field-row .type-label{font-size:12px;color:#888;min-width:65px;}
+.section-label{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px;}
+.add-field-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.add-field-row input,.add-field-row select{flex:1 1 120px;}
+.hidden{display:none;}
+.date-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.date-row label{min-width:55px;margin:0;font-size:13px;color:#555;}
+.date-row input{width:auto;flex:1;}
+.brand-badge{display:inline-block;padding:4px 12px;border-radius:20px;background:#EEEDFE;color:#3C3489;font-size:13px;font-weight:500;margin-bottom:1rem;}
+.empty-state{text-align:center;padding:3rem 1rem;color:#888;font-size:14px;}
+.iq-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;}
+.iq-row textarea{flex:1;font-size:13px;min-height:48px;}
+.script-toggle{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1.25rem;}
+.script-toggle-btn{padding:8px 18px;border-radius:8px;border:1px solid #ddd;background:#fff;font-size:14px;cursor:pointer;font-family:inherit;color:#555;}
+.script-toggle-btn.on{border-color:#7F77DD;background:#EEEDFE;color:#3C3489;font-weight:500;}
+.field-label-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.field-label-row label{margin:0;}
+.multiselect-wrap{position:relative;}
+.multiselect-selected{min-height:42px;padding:6px 10px;border-radius:7px;border:1px solid #ddd;cursor:pointer;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:#fff;}
+.multiselect-selected:focus-within{border-color:#7F77DD;}
+.ms-tag{background:#EEEDFE;color:#3C3489;border-radius:12px;padding:3px 10px;font-size:13px;display:flex;align-items:center;gap:5px;}
+.ms-tag button{background:none;border:none;cursor:pointer;color:#7F77DD;font-size:14px;padding:0;line-height:1;}
+.ms-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:7px;margin-top:4px;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,.1);max-height:220px;overflow-y:auto;}
+.ms-option{padding:9px 12px;cursor:pointer;font-size:14px;}
+.ms-option:hover{background:#f5f5f5;}
+.ms-option.selected{color:#3C3489;background:#EEEDFE;}
+.ms-option.disabled{color:#aaa;cursor:not-allowed;background:#fff;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <h1>Creative Brief Builder</h1>
+    <div class="topbar-btns">
+      <button class="btn-sec" onclick="showSaved()">&#128193; Saved Briefs</button>
+      <button class="btn-sec" onclick="openAdmin()">&#9881; Admin</button>
+    </div>
+  </div>
+
+  <div id="step-saved" class="hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h2 style="margin:0;">Saved briefs</h2>
+      <button class="btn-sec" onclick="setStep('brand')">&#8592; Back</button>
+    </div>
+    <div id="saved-list"></div>
+  </div>
+
+  <div id="step-brand" class="card">
+    <h2>Which brand is this project for?</h2>
+    <p style="color:#666;font-size:14px;margin-bottom:1.5rem;">Select the brand before building your brief.</p>
+    <div class="field">
+      <label>Brand</label>
+      <select id="brand-select" onchange="onBrandChange()">
+        <option value="">Select brand...</option>
+        <option value="PS Seasoning">PS Seasoning</option>
+        <option value="Pro Smoker">Pro Smoker</option>
+        <option value="PS Seasoning + Pro Smoker">PS Seasoning + Pro Smoker</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="field hidden" id="brand-other-wrap">
+      <label>Brand name</label>
+      <input type="text" id="brand-other-input" placeholder="Enter brand name..."/>
+    </div>
+    <button class="btn" onclick="startType()">Next &#8594;</button>
+  </div>
+
+  <div id="step-type" class="hidden card">
+    <div id="brand-badge-type" class="brand-badge"></div>
+    <h2>What type of project is this?</h2>
+    <p style="color:#666;font-size:14px;margin-bottom:1.5rem;">Select a project type to get a tailored brief form.</p>
+    <div class="field">
+      <label>Project type</label>
+      <select id="type-select" onchange="onTypeChange()"><option value="">Select project type...</option></select>
+    </div>
+    <div class="field hidden" id="type-other-wrap">
+      <label>Project type name</label>
+      <input type="text" id="type-other-input" placeholder="Enter project type..."/>
+    </div>
+    <div class="nav">
+      <button class="btn-sec" onclick="setStep('brand')">&#8592; Back</button>
+      <button class="btn" onclick="startBrief()">Start brief</button>
+    </div>
+  </div>
+
+  <div id="step-coming-soon" class="hidden card" style="text-align:center;padding:3rem 2rem;">
+    <div style="font-size:48px;margin-bottom:1rem;">🚧</div>
+    <h2 id="coming-soon-label" style="margin-bottom:.75rem;"></h2>
+    <p style="color:#666;font-size:14px;margin-bottom:2rem;">This project type is coming soon.</p>
+    <button class="btn-sec" onclick="setStep('type')">&#8592; Choose a different project type</button>
+  </div>
+
+  <div id="step-form" class="hidden">
+    <div id="brand-badge-form" class="brand-badge"></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:#777;margin-bottom:.75rem;">
+      <span id="prog-label"></span><span id="prog-pct"></span>
+    </div>
+    <div class="section-pills" id="sec-pills"></div>
+    <div class="card">
+      <h2 id="sec-title"></h2>
+      <div id="sec-fields"></div>
+    </div>
+    <div class="nav">
+      <button class="btn-sec" onclick="formBack()">&#8592; Back</button>
+      <button class="btn" id="form-next-btn" onclick="formNext()">Next &#8594;</button>
+    </div>
+  </div>
+
+  <div id="step-shotlist" class="hidden card">
+    <h2>Shot list</h2>
+    <p style="font-size:14px;color:#666;margin-bottom:1.25rem;">Build your shot list below. Select a shot type and describe each shot.</p>
+    <div style="display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;">
+      <button class="btn-sm" id="ai-shot-btn" onclick="aiShotList()">Build shot list with AI</button>
+      <button class="btn-sm-sec" onclick="addShotRow()">+ Add shot manually</button>
+    </div>
+    <div id="shot-header" style="display:none;">
+      <div style="display:flex;gap:8px;margin-bottom:4px;padding:0 2px;">
+        <span style="flex:0 0 175px;font-size:12px;font-weight:600;color:#888;">Shot type</span>
+        <span style="flex:1;font-size:12px;font-weight:600;color:#888;">Description</span>
+        <span style="flex:0 0 32px;"></span>
+      </div>
+    </div>
+    <div id="shot-tbody"></div>
+    <div class="nav">
+      <button class="btn-sec" onclick="shotBack()">&#8592; Back</button>
+      <button class="btn" id="generate-btn" onclick="generateDoc()">Generate brief &#8594;</button>
+    </div>
+  </div>
+
+  <div id="step-done" class="hidden card">
+    <div class="success">Your brief is ready to download!</div>
+    <div class="download-box" id="dl-box"></div>
+    <p style="font-size:14px;color:#666;margin-bottom:1rem;">What would you like to do next?</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn-sec" onclick="setStep('form')">Edit brief</button>
+      <button class="btn-sec" onclick="setStep('shotlist')">Edit shot list</button>
+      <button class="btn-sec" onclick="showSaved()">View saved briefs</button>
+      <button class="btn" onclick="resetAll()">Start new brief</button>
+    </div>
+  </div>
+</div>
+
+<div id="admin-overlay" class="admin-overlay hidden">
+  <div class="admin-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+      <h2 style="margin:0;">Admin — manage project types</h2>
+      <button onclick="closeAdmin()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">&#x2715;</button>
+    </div>
+    <div id="admin-type-pills" style="margin-bottom:1rem;"></div>
+    <div style="display:flex;gap:8px;margin-bottom:1.5rem;">
+      <input type="text" id="new-type-input" placeholder="New project type name" style="flex:1;"/>
+      <button class="btn" onclick="adminAddType()">Add type</button>
+    </div>
+    <div id="admin-fields-area"></div>
+    <div style="border-top:1px solid #eee;padding-top:1rem;margin-top:.5rem;">
+      <h3>Add a field</h3>
+      <div class="add-field-row">
+        <input type="text" id="new-field-label" placeholder="Field label"/>
+        <select id="new-field-type">
+          <option value="text">text</option>
+          <option value="textarea">textarea</option>
+          <option value="date">date</option>
+          <option value="select">select</option>
+          <option value="multicheck">multicheck</option>
+        </select>
+        <select id="new-field-section"></select>
+        <button class="btn" onclick="adminAddField()">Add field</button>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:1.5rem;">
+      <button class="btn-sec" onclick="closeAdmin()">Cancel</button>
+      <button class="btn" onclick="adminSave()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div id="ai-overlay" class="ai-overlay hidden">
+  <div class="ai-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <h3 style="margin:0;" id="ai-overlay-title">Edit with AI</h3>
+      <button onclick="closeAiOverlay()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">&#x2715;</button>
+    </div>
+    <p style="font-size:13px;color:#666;margin-bottom:12px;">Current text:</p>
+    <div id="ai-current-text" style="background:#f9f9f9;border:1px solid #eee;border-radius:7px;padding:10px 12px;font-size:13px;color:#555;margin-bottom:14px;max-height:120px;overflow-y:auto;line-height:1.6;"></div>
+    <div class="field">
+      <label>What would you like to change or improve?</label>
+      <textarea id="ai-prompt-input" rows="3" placeholder="e.g. Make it more concise, add context about our target audience, make it sound more professional..."></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn" id="ai-submit-btn" onclick="submitAiEdit()">Generate &#8594;</button>
+      <button class="btn-sec" onclick="closeAiOverlay()">Cancel</button>
+    </div>
+    <div id="ai-result-wrap" style="display:none;margin-top:16px;">
+      <p style="font-size:13px;font-weight:500;margin-bottom:8px;">AI suggestion:</p>
+      <div id="ai-result-text" style="background:#EEEDFE;border:1px solid #c8c4f0;border-radius:7px;padding:10px 12px;font-size:13px;color:#1a1a1a;margin-bottom:10px;line-height:1.6;"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-sm" onclick="acceptAiEdit()">Use this</button>
+        <button class="btn-sm-sec" onclick="rejectAiEdit()">Try again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var LOCATION_OPTIONS=["Culinary Center","Innovation Center","Courtyard","Richfield","Offsite","Other"];
+var SHOT_TYPES=["","WS (Wide Shot)","MS (Medium Shot)","CU (Close-Up)","ECU (Extreme Close-Up)","OTS (Over the Shoulder)","POV","Slow Motion"];
+var EQUIPMENT_LIST=["2 Octo Lights","3 Light Kit","Audio Recorder","Camera (DSLR)","Camera (DSLR) — Second","Camera (Smartphone)","Lavaliere Microphones","Rode Shotgun Mic w/ Wind Screen","Ronin-S","SD Cards","Smartphone Gimbal","Tripods"];
+var FORMAT_OPTIONS=["PSU (Long Form Tutorial)","Product Assets","Recipe Reel / Social","Lifestyle Photo / Video","Event Coverage","Training Video","Features & Benefits Video","Other"];
+var LS_TYPES_KEY="cb_project_types";
+var LS_BRIEFS_KEY="cb_saved_briefs";
+
+var SHARED_SECTIONS=[
+  {id:"overview",label:"Project overview",fields:[
+    {id:"projectName",label:"Project name",type:"text",placeholder:"e.g. Holiday Gift Guide 2025"},
+    {id:"videoType",label:"Project type / format",type:"multiformat"},
+    {id:"requestedBy",label:"Requested by",type:"text",placeholder:"Name and team"},
+    {id:"projectLead",label:"Creative lead",type:"text",placeholder:"Name"},
+    {id:"submittedDate",label:"Date submitted",type:"date"}
+  ]},
+  {id:"objective",label:"Objective",fields:[
+    {id:"objective",label:"Project objective",type:"textarea-ai",placeholder:"What is the purpose of this project? What should the audience think, feel, or do?"},
+    {id:"context",label:"Background / context",type:"textarea-ai",placeholder:"Any relevant background the team needs to know before starting."}
+  ]},
+  {id:"equipment",label:"Equipment needs",fields:[
+    {id:"equipment",label:"Equipment list",type:"equiplist"}
+  ]},
+  {id:"talent",label:"Talent & crew",fields:[
+    {id:"onCameraTalent",label:"On-camera talent",type:"text",placeholder:"e.g. Chef Jed"},
+    {id:"talentNotes",label:"Talent notes",type:"textarea",placeholder:"Direction, scripted lines, or delivery notes for talent."},
+    {id:"voiceoverNeeded",label:"Voiceover needed?",type:"select",options:["Yes - talent on camera","Yes - separate VO artist","Yes - AI generated VO","No voiceover"]},
+    {id:"crew",label:"Crew / team required",type:"textarea",placeholder:"Videographer, photographer, editor, etc."}
+  ]},
+  {id:"location",label:"Location & schedule",fields:[
+    {id:"location",label:"Shoot location(s)",type:"locations"},
+    {id:"shootDateType",label:"Shoot date(s)",type:"shootdates"},
+    {id:"editDeadline",label:"Edit / delivery deadline",type:"date"},
+    {id:"launchDate",label:"Target launch / publish date",type:"date"}
+  ]},
+  {id:"deliverables",label:"Deliverables & distribution",fields:[
+    {id:"deliverables",label:"Deliverables",type:"textarea",placeholder:"List every final asset required."},
+    {id:"channels",label:"Distribution channels",type:"textarea",placeholder:"Where will this be published or used?"},
+    {id:"aspectRatios",label:"Formats / aspect ratios needed",type:"multicheck",options:["16:9 (YouTube / web)","9:16 (Reels / TikTok)","1:1 (Square)","4:5 (Feed)","4K","1080p","Print / high-res","White background / cutout"]}
+  ]},
+  {id:"branding",label:"Branding & mandatories",fields:[
+    {id:"brandVersions",label:"Brand versions needed",type:"textarea",placeholder:"e.g. PS Seasoning version + Pro Smoker version"},
+    {id:"mandatories",label:"Mandatory elements",type:"textarea",placeholder:"Logo treatments, URLs, legal text, CTAs that must appear."},
+    {id:"references",label:"Reference / inspiration",type:"textarea",placeholder:"Links, past content, or creative direction notes."}
+  ]},
+  {id:"addnotes",label:"Additional notes",fields:[
+    {id:"addnotes",label:"Additional notes",type:"textarea",placeholder:"Anything else the team or leadership should know before this project begins."}
+  ]}
+];
+
+var DEFAULT_TYPES=[
+  {id:"photovideo",label:"Photo / Video Shoot",hasScript:true,sections:JSON.parse(JSON.stringify(SHARED_SECTIONS))},
+  {id:"graphicdesign",label:"Graphic Design",hasScript:false,comingSoon:true,sections:[]},
+  {id:"privatelabel",label:"Private Label Design",hasScript:false,comingSoon:true,sections:[]}
+];
+
+function loadTypes(){try{var s=localStorage.getItem(LS_TYPES_KEY);return s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_TYPES));}catch(e){return JSON.parse(JSON.stringify(DEFAULT_TYPES));}}
+function saveTypesToStorage(t){try{localStorage.setItem(LS_TYPES_KEY,JSON.stringify(t));}catch(e){console.warn("localStorage unavailable");}}
+function loadBriefs(){try{var s=localStorage.getItem(LS_BRIEFS_KEY);return s?JSON.parse(s):[];}catch(e){return [];}}
+function saveBriefsToStorage(b){try{localStorage.setItem(LS_BRIEFS_KEY,JSON.stringify(b));}catch(e){console.warn("localStorage unavailable");}}
+
+var projectTypes=loadTypes();
+var answers={};
+var equipItems=[];
+var shotItems=[];
+var scriptRows=[];
+var interviewQuestions=[];
+var scriptMode={script:false,interview:false};
+var selectedBrand="";
+var selectedBrandOther="";
+var currentTypeId="";
+var currentStep=0;
+var editingBriefId=null;
+var adminSelected=0;
+var adminTypes=[];
+var aiFieldId=null;
+var aiFieldEl=null;
+
+function getType(){return projectTypes.find(function(t){return t.id===currentTypeId;});}
+function getBrandLabel(){return selectedBrand==="Other"?(selectedBrandOther||"Other"):selectedBrand;}
+
+function getSectionsForType(t){
+  if(!t||!t.sections)return [];
+  var base=JSON.parse(JSON.stringify(t.sections));
+  if(t.hasScript)base.push({id:"script",label:"Script",type:"script",fields:[]});
+  return base;
+}
+function getSections(){return getSectionsForType(getType());}
+
+function onBrandChange(){
+  var val=document.getElementById("brand-select").value;
+  document.getElementById("brand-other-wrap").classList.toggle("hidden",val!=="Other");
+}
+
+function onTypeChange(){
+  var val=document.getElementById("type-select").value;
+  document.getElementById("type-other-wrap").classList.toggle("hidden",val!=="other_custom");
+}
+
+function boot(){
+  var sel=document.getElementById("type-select");
+  sel.innerHTML='<option value="">Select project type...</option>';
+  projectTypes.forEach(function(t){
+    var o=document.createElement("option");o.value=t.id;o.textContent=t.label;sel.appendChild(o);
+  });
+  var other=document.createElement("option");other.value="other_custom";other.textContent="Other";
+  sel.appendChild(other);
+}
+
+function setStep(name){
+  ["step-saved","step-brand","step-type","step-form","step-coming-soon","step-shotlist","step-done"].forEach(function(id){
+    document.getElementById(id).classList.add("hidden");
+  });
+  var el=document.getElementById("step-"+name);
+  if(el)el.classList.remove("hidden");
+  if(name==="form")renderForm();
+  if(name==="shotlist")renderShotList();
+  if(name==="saved")renderSavedList();
+  window.scrollTo(0,0);
+}
+
+function startType(){
+  var val=document.getElementById("brand-select").value;
+  if(!val)return;
+  selectedBrand=val;
+  selectedBrandOther=document.getElementById("brand-other-input").value;
+  document.getElementById("brand-badge-type").textContent=getBrandLabel();
+  setStep("type");
+}
+
+function startBrief(){
+  var sel=document.getElementById("type-select");
+  if(!sel.value)return;
+  if(sel.value==="other_custom"){
+    var customLabel=(document.getElementById("type-other-input").value.trim())||"Other";
+    currentTypeId="other_custom";
+    var existing=projectTypes.find(function(t){return t.id==="other_custom";});
+    if(existing){existing.label=customLabel;}
+    else{projectTypes.push({id:"other_custom",label:customLabel,hasScript:false,sections:JSON.parse(JSON.stringify(SHARED_SECTIONS))});}
+  } else {
+    currentTypeId=sel.value;
+    var t=getType();
+    if(t&&t.comingSoon){document.getElementById("coming-soon-label").textContent=t.label;setStep("coming-soon");return;}
+  }
+  currentStep=0;
+  answers={};equipItems=[];shotItems=[];scriptRows=[];interviewQuestions=[];
+  scriptMode={script:false,interview:false};editingBriefId=null;
+  document.getElementById("brand-badge-form").textContent=getBrandLabel();
+  setStep("form");
+}
+
+function resetAll(){
+  selectedBrand="";selectedBrandOther="";currentTypeId="";currentStep=0;
+  answers={};equipItems=[];shotItems=[];scriptRows=[];interviewQuestions=[];
+  scriptMode={script:false,interview:false};editingBriefId=null;
+  document.getElementById("brand-select").value="";
+  document.getElementById("brand-other-input").value="";
+  document.getElementById("brand-other-wrap").classList.add("hidden");
+  document.getElementById("type-select").value="";
+  document.getElementById("type-other-input").value="";
+  document.getElementById("type-other-wrap").classList.add("hidden");
+  setStep("brand");
+}
+
+// ---- Saved Briefs ----
+function showSaved(){setStep("saved");}
+
+function renderSavedList(){
+  var list=document.getElementById("saved-list");
+  var briefs=loadBriefs();list.innerHTML="";
+  if(!briefs.length){list.innerHTML='<div class="empty-state">No saved briefs yet.</div>';return;}
+  briefs.forEach(function(b){
+    var row=document.createElement("div");row.className="saved-brief-row";
+    var info=document.createElement("div");info.className="saved-brief-info";
+    var name=document.createElement("div");name.className="saved-brief-name";name.textContent=b.projectName||"Untitled Brief";
+    var meta=document.createElement("div");meta.className="saved-brief-meta";
+    meta.textContent=(b.brand||"")+" \u2014 "+(b.typeLabel||"")+" \u2014 Saved "+(b.savedAt||"");
+    info.appendChild(name);info.appendChild(meta);
+    var actions=document.createElement("div");actions.className="saved-brief-actions";
+    var editBtn=document.createElement("button");editBtn.className="btn-sm";editBtn.textContent="Open";
+    editBtn.onclick=(function(brief){return function(){loadBrief(brief);};})(b);
+    var delBtn=document.createElement("button");delBtn.className="btn-danger";delBtn.textContent="Delete";
+    delBtn.onclick=(function(id){return function(){deleteBrief(id);};})(b.id);
+    actions.appendChild(editBtn);actions.appendChild(delBtn);
+    row.appendChild(info);row.appendChild(actions);list.appendChild(row);
+  });
+}
+
+function saveBrief(){
+  var briefs=loadBriefs();
+  var id=editingBriefId||(Date.now().toString());
+  var now=new Date();
+  var dateStr=(now.getMonth()+1)+"/"+now.getDate()+"/"+now.getFullYear();
+  var record={id:id,projectName:answers.projectName||"Untitled Brief",brand:getBrandLabel(),
+    typeId:currentTypeId,typeLabel:(getType()||{label:""}).label,
+    selectedBrand:selectedBrand,selectedBrandOther:selectedBrandOther,
+    answers:JSON.parse(JSON.stringify(answers)),
+    equipItems:JSON.parse(JSON.stringify(equipItems)),
+    shotItems:JSON.parse(JSON.stringify(shotItems)),
+    scriptRows:JSON.parse(JSON.stringify(scriptRows)),
+    interviewQuestions:JSON.parse(JSON.stringify(interviewQuestions)),
+    scriptMode:JSON.parse(JSON.stringify(scriptMode)),
+    savedAt:dateStr};
+  var idx=briefs.findIndex(function(b){return b.id===id;});
+  if(idx>=0)briefs[idx]=record;else briefs.unshift(record);
+  saveBriefsToStorage(briefs);editingBriefId=id;
+}
+
+function loadBrief(b){
+  currentTypeId=b.typeId;selectedBrand=b.selectedBrand||"";selectedBrandOther=b.selectedBrandOther||"";
+  answers=JSON.parse(JSON.stringify(b.answers||{}));
+  equipItems=JSON.parse(JSON.stringify(b.equipItems||[]));
+  shotItems=JSON.parse(JSON.stringify(b.shotItems||[]));
+  scriptRows=JSON.parse(JSON.stringify(b.scriptRows||[]));
+  interviewQuestions=JSON.parse(JSON.stringify(b.interviewQuestions||[]));
+  scriptMode=JSON.parse(JSON.stringify(b.scriptMode||{script:false,interview:false}));
+  editingBriefId=b.id;currentStep=0;
+  document.getElementById("brand-badge-form").textContent=getBrandLabel();
+  setStep("form");
+}
+
+function deleteBrief(id){
+  var briefs=loadBriefs().filter(function(b){return b.id!==id;});
+  saveBriefsToStorage(briefs);renderSavedList();
+}
+
+// ---- Form ----
+function renderForm(){
+  var sections=getSections();var sec=sections[currentStep];if(!sec)return;
+  if(sec.type==="script"){
+    document.getElementById("sec-title").textContent="Script";
+    document.getElementById("prog-label").textContent="Section "+(currentStep+1)+" of "+sections.length+" \u2014 "+(getType()||{label:""}).label;
+    var pct=calcPct();
+    document.getElementById("prog-fill").style.width=pct+"%";
+    document.getElementById("prog-pct").textContent=pct+"% complete";
+    document.getElementById("form-next-btn").textContent="Next: shot list \u2192";
+    renderSectionPills(sections);
+    var fieldsEl=document.getElementById("sec-fields");fieldsEl.innerHTML="";
+    fieldsEl.appendChild(renderScriptSection());
+    return;
+  }
+  document.getElementById("sec-title").textContent=sec.label;
+  document.getElementById("prog-label").textContent="Section "+(currentStep+1)+" of "+sections.length+" \u2014 "+(getType()||{label:""}).label;
+  var pct=calcPct();
+  document.getElementById("prog-fill").style.width=pct+"%";
+  document.getElementById("prog-pct").textContent=pct+"% complete";
+  var isLast=currentStep===sections.length-1;
+  document.getElementById("form-next-btn").textContent=isLast?"Next: shot list \u2192":"Next \u2192";
+  renderSectionPills(sections);
+  var fieldsEl=document.getElementById("sec-fields");fieldsEl.innerHTML="";
+  sec.fields.forEach(function(f){
+    var wrap=document.createElement("div");wrap.className="field";
+    if(f.type==="textarea-ai"){
+      var labelRow=document.createElement("div");labelRow.className="field-label-row";
+      var lbl=document.createElement("label");lbl.textContent=f.label;
+      var aiBtn=document.createElement("button");aiBtn.className="btn-ai";aiBtn.textContent="✦ Edit with AI";
+      (function(fid,flabel){
+        aiBtn.onclick=function(){openAiOverlay(fid,flabel);};
+      })(f.id,f.label);
+      labelRow.appendChild(lbl);labelRow.appendChild(aiBtn);wrap.appendChild(labelRow);
+    } else {
+      var lbl2=document.createElement("label");lbl2.textContent=f.label;wrap.appendChild(lbl2);
+    }
+    wrap.appendChild(renderField(f));fieldsEl.appendChild(wrap);
+  });
+}
+
+function renderSectionPills(sections){
+  var pillsEl=document.getElementById("sec-pills");pillsEl.innerHTML="";
+  sections.forEach(function(s,i){
+    var filled=s.type==="script"?(scriptMode.script&&scriptRows.filter(function(r){return r.vo||r.visuals;}).length)||(scriptMode.interview&&interviewQuestions.filter(function(q){return q.trim();}).length):s.fields.some(function(f){return isFieldFilled(f);});
+    var b=document.createElement("button");
+    b.className="sec-pill"+(i===currentStep?" active":"")+(filled&&i!==currentStep?" filled":"");
+    b.textContent=String(i+1).padStart(2,"0")+" "+s.label;
+    b.onclick=(function(idx){return function(){currentStep=idx;renderForm();};})(i);
+    pillsEl.appendChild(b);
+  });
+}
+
+// ---- Script section ----
+function renderScriptSection(){
+  var wrap=document.createElement("div");
+
+  // Toggle buttons
+  var toggleWrap=document.createElement("div");toggleWrap.className="script-toggle";
+  var scriptBtn=document.createElement("button");scriptBtn.className="script-toggle-btn"+(scriptMode.script?" on":"");
+  scriptBtn.textContent="Write Script";
+  var iqBtn=document.createElement("button");iqBtn.className="script-toggle-btn"+(scriptMode.interview?" on":"");
+  iqBtn.textContent="Write Interview Questions";
+
+  scriptBtn.onclick=function(){
+    scriptMode.script=!scriptMode.script;
+    scriptBtn.classList.toggle("on",scriptMode.script);
+    rebuildScriptBody();
+  };
+  iqBtn.onclick=function(){
+    scriptMode.interview=!scriptMode.interview;
+    iqBtn.classList.toggle("on",scriptMode.interview);
+    rebuildScriptBody();
+  };
+  toggleWrap.appendChild(scriptBtn);toggleWrap.appendChild(iqBtn);wrap.appendChild(toggleWrap);
+
+  var bodyWrap=document.createElement("div");bodyWrap.id="script-body-wrap";wrap.appendChild(bodyWrap);
+
+  function rebuildScriptBody(){
+    bodyWrap.innerHTML="";
+    if(!scriptMode.script&&!scriptMode.interview){
+      var hint=document.createElement("p");hint.style.cssText="font-size:13px;color:#aaa;";hint.textContent="Select one or both options above to get started.";
+      bodyWrap.appendChild(hint);return;
+    }
+
+    if(scriptMode.script){
+      var sHead=document.createElement("p");sHead.style.cssText="font-size:14px;font-weight:500;margin:0 0 10px;";sHead.textContent="Script";bodyWrap.appendChild(sHead);
+      var btnRow=document.createElement("div");btnRow.style.cssText="display:flex;gap:10px;margin-bottom:1rem;flex-wrap:wrap;";
+      var draftBtn=document.createElement("button");draftBtn.className="btn-sm";draftBtn.textContent="Draft script with AI";
+      draftBtn.onclick=function(){
+        draftBtn.textContent="Drafting...";draftBtn.disabled=true;
+        var ctx="Brand: "+getBrandLabel()+"\nProject: "+(answers.projectName||"untitled")+"\nObjective: "+(answers.objective||"")+"\nTalent: "+(answers.onCameraTalent||"");
+        fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
+            messages:[{role:"user",content:"You are a video script writer for a food and BBQ brand. Write a two-column script. Return ONLY a JSON array of objects with keys \"vo\" and \"visuals\". No markdown, just the JSON array. Aim for 6-12 rows.\n\nBrief:\n"+ctx}]
+          })
+        }).then(function(r){return r.json();}).then(function(data){
+          var text="";if(data.content)data.content.forEach(function(b){if(b.type==="text")text+=b.text;});
+          try{var p=JSON.parse(text.replace(/```json|```/g,"").trim());if(Array.isArray(p)&&p.length){scriptRows=p;rebuildTable();}}catch(e){console.error(e);}
+          draftBtn.textContent="Draft script with AI";draftBtn.disabled=false;
+        }).catch(function(e){
+          console.error(e);draftBtn.textContent="Draft script with AI";draftBtn.disabled=false;
+          alert("AI features require an internet connection. They may not work when opening this file directly from your desktop. Once on SharePoint this will work fully.");
+        });
+      };
+      var addRowBtn=document.createElement("button");addRowBtn.className="btn-sm-sec";addRowBtn.textContent="+ Add row";
+      addRowBtn.onclick=function(){scriptRows.push({vo:"",visuals:""});rebuildTable();};
+      btnRow.appendChild(draftBtn);btnRow.appendChild(addRowBtn);bodyWrap.appendChild(btnRow);
+      var tableWrap=document.createElement("div");tableWrap.style.overflowX="auto";
+      var table=document.createElement("table");table.className="script-table";
+      table.innerHTML="<thead><tr><th style='width:47%'>Voiceover / on-camera dialogue</th><th style='width:47%'>Matching visuals</th><th style='width:6%'></th></tr></thead>";
+      var tbody=document.createElement("tbody");table.appendChild(tbody);tableWrap.appendChild(table);bodyWrap.appendChild(tableWrap);
+      function rebuildTable(){
+        tbody.innerHTML="";
+        if(!scriptRows.length)scriptRows.push({vo:"",visuals:""});
+        scriptRows.forEach(function(row,i){
+          var tr=document.createElement("tr");
+          var td1=document.createElement("td");var ta1=document.createElement("textarea");ta1.value=row.vo||"";ta1.style.width="100%";
+          ta1.oninput=function(){scriptRows[i].vo=ta1.value;};td1.appendChild(ta1);
+          var td2=document.createElement("td");var ta2=document.createElement("textarea");ta2.value=row.visuals||"";ta2.style.width="100%";
+          ta2.oninput=function(){scriptRows[i].visuals=ta2.value;};td2.appendChild(ta2);
+          var td3=document.createElement("td");var db=document.createElement("button");db.className="del-btn";db.textContent="\u2715";db.type="button";
+          db.onclick=(function(idx){return function(){scriptRows.splice(idx,1);rebuildTable();};})(i);
+          td3.appendChild(db);tr.appendChild(td1);tr.appendChild(td2);tr.appendChild(td3);tbody.appendChild(tr);
+        });
+      }
+      rebuildTable();
+    }
+
+    if(scriptMode.interview){
+      var div=document.createElement("div");div.style.marginTop=scriptMode.script?"1.5rem":"0";
+      var iqHead=document.createElement("p");iqHead.style.cssText="font-size:14px;font-weight:500;margin:0 0 10px;";iqHead.textContent="Interview questions";div.appendChild(iqHead);
+      var iqBtnRow=document.createElement("div");iqBtnRow.style.cssText="display:flex;gap:10px;margin-bottom:1rem;flex-wrap:wrap;";
+      var aiIqBtn=document.createElement("button");aiIqBtn.className="btn-sm";aiIqBtn.textContent="Generate questions with AI";
+      aiIqBtn.onclick=function(){
+        aiIqBtn.textContent="Generating...";aiIqBtn.disabled=true;
+        var ctx="Brand: "+getBrandLabel()+"\nProject: "+(answers.projectName||"untitled")+"\nObjective: "+(answers.objective||"")+"\nContext: "+(answers.context||"");
+        fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,
+            messages:[{role:"user",content:"You are producing a video interview for a food and BBQ brand. Generate a list of thoughtful interview questions. Return ONLY a JSON array of strings (the questions). No markdown, just the array. Aim for 6-10 questions.\n\nBrief:\n"+ctx}]
+          })
+        }).then(function(r){return r.json();}).then(function(data){
+          var text="";if(data.content)data.content.forEach(function(b){if(b.type==="text")text+=b.text;});
+          try{var p=JSON.parse(text.replace(/```json|```/g,"").trim());if(Array.isArray(p)&&p.length){interviewQuestions=p;rebuildIQ();}}catch(e){console.error(e);}
+          aiIqBtn.textContent="Generate questions with AI";aiIqBtn.disabled=false;
+        }).catch(function(e){console.error(e);aiIqBtn.textContent="Generate questions with AI";aiIqBtn.disabled=false;});
+      };
+      var addIqBtn=document.createElement("button");addIqBtn.className="btn-sm-sec";addIqBtn.textContent="+ Add question";
+      addIqBtn.onclick=function(){interviewQuestions.push("");rebuildIQ();};
+      iqBtnRow.appendChild(aiIqBtn);iqBtnRow.appendChild(addIqBtn);div.appendChild(iqBtnRow);
+      var iqList=document.createElement("div");iqList.id="iq-list";div.appendChild(iqList);
+      function rebuildIQ(){
+        iqList.innerHTML="";
+        if(!interviewQuestions.length)interviewQuestions.push("");
+        interviewQuestions.forEach(function(q,i){
+          var row=document.createElement("div");row.className="iq-row";
+          var num=document.createElement("span");num.style.cssText="font-size:13px;color:#888;min-width:20px;padding-top:10px;";num.textContent=(i+1)+".";
+          var ta=document.createElement("textarea");ta.value=q||"";ta.placeholder="Type question here...";ta.style.width="100%";
+          ta.oninput=function(){interviewQuestions[i]=ta.value;};
+          var db=document.createElement("button");db.className="del-btn";db.textContent="\u2715";db.type="button";db.style.marginTop="8px";
+          db.onclick=(function(idx){return function(){interviewQuestions.splice(idx,1);rebuildIQ();};})(i);
+          row.appendChild(num);row.appendChild(ta);row.appendChild(db);iqList.appendChild(row);
+        });
+      }
+      rebuildIQ();bodyWrap.appendChild(div);
+    }
+  }
+
+  rebuildScriptBody();return wrap;
+}
+
+// ---- AI overlay ----
+function openAiOverlay(fieldId, fieldLabel){
+  aiFieldId=fieldId;
+  document.getElementById("ai-overlay-title").textContent="Edit with AI \u2014 "+fieldLabel;
+  document.getElementById("ai-current-text").textContent=answers[fieldId]||"(empty)";
+  document.getElementById("ai-prompt-input").value="";
+  document.getElementById("ai-result-wrap").style.display="none";
+  document.getElementById("ai-overlay").classList.remove("hidden");
+}
+
+function closeAiOverlay(){document.getElementById("ai-overlay").classList.add("hidden");aiFieldId=null;}
+
+function submitAiEdit(){
+  var prompt=document.getElementById("ai-prompt-input").value.trim();
+  if(!prompt)return;
+  var btn=document.getElementById("ai-submit-btn");btn.textContent="Generating...";btn.disabled=true;
+  document.getElementById("ai-result-wrap").style.display="none";
+  var current=answers[aiFieldId]||"";
+  var ctx="Field: "+document.getElementById("ai-overlay-title").textContent+"\nCurrent text: "+current+"\nUser request: "+prompt+"\nBrand: "+getBrandLabel()+"\nProject: "+(answers.projectName||"");
+  var payload={model:"claude-sonnet-4-20250514",max_tokens:500,
+    messages:[{role:"user",content:"You are helping a creative team fill out a project brief for a food and BBQ brand. Based on the user's request, rewrite or improve the field text. Return ONLY the improved text, nothing else, no preamble, no explanation.\n\n"+ctx}]
+  };
+  fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(payload)
+  }).then(function(r){
+    if(!r.ok){return r.text().then(function(t){throw new Error("API error "+r.status+": "+t);});}
+    return r.json();
+  }).then(function(data){
+    var text="";
+    if(data.content)data.content.forEach(function(b){if(b.type==="text")text+=b.text;});
+    if(!text.trim())throw new Error("Empty response from AI.");
+    document.getElementById("ai-result-text").textContent=text.trim();
+    document.getElementById("ai-result-wrap").style.display="block";
+    btn.textContent="Generate \u2192";btn.disabled=false;
+  }).catch(function(e){
+    console.error("AI edit error:",e);
+    btn.textContent="Generate \u2192";btn.disabled=false;
+    // Show error inside the overlay
+    var errEl=document.getElementById("ai-error-msg");
+    if(!errEl){
+      errEl=document.createElement("p");errEl.id="ai-error-msg";
+      errEl.style.cssText="font-size:13px;color:#c0392b;margin-top:10px;padding:10px;background:#fff0f0;border-radius:6px;border:1px solid #f5c1c1;";
+      document.getElementById("ai-submit-btn").parentNode.appendChild(errEl);
+    }
+    if(e.message&&e.message.indexOf("fetch")!==-1||e.message.indexOf("Failed")!==-1){
+      errEl.innerHTML="<strong>Network error:</strong> The AI feature requires an internet connection and may not work when opening the file directly from your desktop (file:// protocol). To use AI features, host the file on SharePoint or a local server.";
+    } else {
+      errEl.textContent="Error: "+e.message;
+    }
+  });
+}
+
+function acceptAiEdit(){
+  var text=document.getElementById("ai-result-text").textContent;
+  answers[aiFieldId]=text;
+  closeAiOverlay();
+  renderForm();
+}
+
+function rejectAiEdit(){
+  document.getElementById("ai-result-wrap").style.display="none";
+  document.getElementById("ai-prompt-input").value="";
+}
+
+// ---- Field rendering ----
+function renderField(f){
+  if(f.type==="multiformat") return renderMultiFormat();
+  if(f.type==="equiplist") return renderEquipList();
+  if(f.type==="locations") return renderLocations(f);
+  if(f.type==="shootdates") return renderShootDates(f);
+  if(f.type==="textarea"||f.type==="textarea-ai"){
+    var ta=document.createElement("textarea");ta.placeholder=f.placeholder||"";ta.value=answers[f.id]||"";
+    ta.oninput=function(){answers[f.id]=ta.value;updateProgress();};return ta;
+  }
+  if(f.type==="select"){
+    var sel=document.createElement("select");
+    var blank=document.createElement("option");blank.value="";blank.textContent="Select...";sel.appendChild(blank);
+    (f.options||[]).forEach(function(o){var op=document.createElement("option");op.value=o;op.textContent=o;sel.appendChild(op);});
+    sel.value=answers[f.id]||"";sel.onchange=function(){answers[f.id]=sel.value;updateProgress();};return sel;
+  }
+  if(f.type==="multicheck"){
+    var div=document.createElement("div");div.className="pill-group";
+    var sel2=answers[f.id]||[];
+    (f.options||[]).forEach(function(o){
+      var b=document.createElement("button");b.className="pill"+(sel2.includes(o)?" on":"");b.textContent=o;b.type="button";
+      b.onclick=function(){
+        var cur=answers[f.id]||[];
+        if(cur.includes(o)){answers[f.id]=cur.filter(function(x){return x!==o;});b.classList.remove("on");}
+        else{answers[f.id]=cur.concat([o]);b.classList.add("on");}
+        updateProgress();
+      };
+      div.appendChild(b);
+    });
+    return div;
+  }
+  var inp=document.createElement("input");inp.type=f.type==="date"?"date":"text";
+  inp.placeholder=f.placeholder||"";inp.value=answers[f.id]||"";
+  inp.oninput=function(){answers[f.id]=inp.value;updateProgress();};return inp;
+}
+
+function renderMultiFormat(){
+  var selected=answers["videoType"]||[];
+  var MAX=3;
+  var wrap=document.createElement("div");wrap.className="multiselect-wrap";
+  var display=document.createElement("div");display.className="multiselect-selected";display.tabIndex=0;
+  var dropdown=document.createElement("div");dropdown.className="ms-dropdown hidden";
+  var isOpen=false;
+
+  function renderDisplay(){
+    display.innerHTML="";
+    if(!selected.length){var ph=document.createElement("span");ph.style.cssText="color:#aaa;font-size:14px;";ph.textContent="Select up to 3...";display.appendChild(ph);}
+    selected.forEach(function(item){
+      var tag=document.createElement("div");tag.className="ms-tag";
+      var txt=document.createTextNode(item);
+      var x=document.createElement("button");x.textContent="\u00d7";x.type="button";
+      x.onclick=function(e){e.stopPropagation();selected=selected.filter(function(s){return s!==item;});answers["videoType"]=selected;renderDisplay();renderDropdown();updateProgress();};
+      tag.appendChild(txt);tag.appendChild(x);display.appendChild(tag);
+    });
+  }
+
+  function renderDropdown(){
+    dropdown.innerHTML="";
+    FORMAT_OPTIONS.forEach(function(o){
+      var opt=document.createElement("div");opt.className="ms-option";
+      var isSel=selected.includes(o);var isFull=selected.length>=MAX&&!isSel;
+      if(isSel)opt.classList.add("selected");
+      if(isFull)opt.classList.add("disabled");
+      opt.textContent=o;
+      if(!isFull){
+        opt.onclick=function(e){e.stopPropagation();
+          if(isSel){selected=selected.filter(function(s){return s!==o;});}
+          else if(selected.length<MAX){selected=selected.concat([o]);}
+          answers["videoType"]=selected;renderDisplay();renderDropdown();updateProgress();
+        };
+      }
+      dropdown.appendChild(opt);
+    });
+  }
+
+  display.onclick=function(){isOpen=!isOpen;dropdown.classList.toggle("hidden",!isOpen);};
+  document.addEventListener("click",function(e){if(!wrap.contains(e.target)){isOpen=false;dropdown.classList.add("hidden");}});
+  renderDisplay();renderDropdown();wrap.appendChild(display);wrap.appendChild(dropdown);
+  var hint=document.createElement("p");hint.style.cssText="font-size:12px;color:#aaa;margin-top:4px;";hint.textContent="Select up to 3 formats.";
+  wrap.appendChild(hint);return wrap;
+}
+
+function renderEquipList(){
+  var div=document.createElement("div");
+  if(!equipItems)equipItems=[];
+  function rebuild(){
+    div.innerHTML="";
+    var listWrap=document.createElement("div");listWrap.style.cssText="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;";
+    var allItems=EQUIPMENT_LIST.slice();
+    equipItems.forEach(function(item){if(item.trim()&&allItems.indexOf(item.trim())===-1)allItems.push(item.trim());});
+    allItems.sort(function(a,b){return a.localeCompare(b);});
+    allItems.forEach(function(item){
+      var checked=equipItems.indexOf(item)!==-1;
+      var row=document.createElement("label");row.style.cssText="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:4px 0;";
+      var cb=document.createElement("input");cb.type="checkbox";cb.checked=checked;
+      cb.style.cssText="width:16px;height:16px;cursor:pointer;accent-color:#534AB7;flex-shrink:0;";
+      cb.onchange=function(){if(cb.checked){if(equipItems.indexOf(item)===-1)equipItems.push(item);}else{equipItems=equipItems.filter(function(x){return x!==item;});}};
+      var lbl=document.createElement("span");lbl.textContent=item;
+      row.appendChild(cb);row.appendChild(lbl);listWrap.appendChild(row);
+    });
+    div.appendChild(listWrap);
+    var addRow=document.createElement("div");addRow.style.cssText="display:flex;gap:8px;align-items:center;margin-top:4px;";
+    var newInp=document.createElement("input");newInp.type="text";newInp.placeholder="Add custom equipment...";newInp.style.cssText="flex:1;font-size:13px;padding:7px 9px;";
+    var addBtn=document.createElement("button");addBtn.className="btn-sm";addBtn.textContent="Add";addBtn.type="button";
+    addBtn.onclick=function(){
+      var val=newInp.value.trim();if(!val)return;
+      if(EQUIPMENT_LIST.indexOf(val)===-1)EQUIPMENT_LIST.push(val);
+      if(equipItems.indexOf(val)===-1)equipItems.push(val);
+      newInp.value="";rebuild();
+    };
+    addRow.appendChild(newInp);addRow.appendChild(addBtn);div.appendChild(addRow);
+  }
+  rebuild();return div;
+}
+
+function renderLocations(f){
+  var val=answers[f.id]||{selected:[],other:""};
+  var div=document.createElement("div");
+  var pills=document.createElement("div");pills.className="pill-group";pills.style.marginBottom="10px";
+  var otherWrap=document.createElement("div");
+  otherWrap.style.display=(val.selected||[]).includes("Other")?"block":"none";
+  var otherInp=document.createElement("input");otherInp.type="text";otherInp.placeholder="Describe the location...";otherInp.value=val.other||"";
+  otherInp.oninput=function(){var v=answers[f.id]||{selected:[],other:""};answers[f.id]={selected:v.selected,other:otherInp.value};};
+  LOCATION_OPTIONS.forEach(function(loc){
+    var b=document.createElement("button");b.className="pill"+((val.selected||[]).includes(loc)?" on":"");b.textContent=loc;b.type="button";
+    b.onclick=function(){
+      var v=answers[f.id]||{selected:[],other:""};var sel=v.selected||[];
+      if(sel.includes(loc))sel=sel.filter(function(x){return x!==loc;});else sel=sel.concat([loc]);
+      answers[f.id]={selected:sel,other:v.other||""};
+      b.classList.toggle("on",sel.includes(loc));
+      otherWrap.style.display=sel.includes("Other")?"block":"none";
+      updateProgress();
+    };
+    pills.appendChild(b);
+  });
+  otherWrap.appendChild(otherInp);div.appendChild(pills);div.appendChild(otherWrap);return div;
+}
+
+function renderShootDates(f){
+  var val=answers[f.id]||{mode:"",count:2,dates:[],rangeStart:"",rangeEnd:""};
+  var div=document.createElement("div");
+  var modeRow=document.createElement("div");modeRow.className="pill-group";modeRow.style.marginBottom="12px";
+  var datesArea=document.createElement("div");
+  function renderDatesArea(){
+    datesArea.innerHTML="";
+    var v=answers[f.id]||{mode:"",count:2,dates:[],rangeStart:"",rangeEnd:""};
+    if(v.mode==="single"){
+      var row=document.createElement("div");row.className="date-row";
+      var inp=document.createElement("input");inp.type="date";inp.value=v.dates[0]||"";
+      inp.onchange=function(){var vv=answers[f.id]||{mode:"single",dates:[]};vv.dates=[inp.value];answers[f.id]=vv;updateProgress();};
+      row.appendChild(inp);datesArea.appendChild(row);
+    }else if(v.mode==="multiple"){
+      var cRow=document.createElement("div");cRow.className="date-row";
+      var cLbl=document.createElement("label");cLbl.textContent="How many shoot days?";cLbl.style.minWidth="160px";
+      var cSel=document.createElement("select");cSel.style.width="auto";
+      [2,3,4,5,6,7,8,9,10].forEach(function(n){var o=document.createElement("option");o.value=n;o.textContent=n;cSel.appendChild(o);});
+      cSel.value=v.count||2;
+      cSel.onchange=function(){
+        var vv=answers[f.id]||{};var n=Number(cSel.value);var d=[];
+        for(var i=0;i<n;i++)d.push((vv.dates||[])[i]||"");
+        answers[f.id]=Object.assign({},vv,{count:n,dates:d});renderDatesArea();
+      };
+      cRow.appendChild(cLbl);cRow.appendChild(cSel);datesArea.appendChild(cRow);
+      for(var i=0;i<(v.count||2);i++){
+        (function(idx){
+          var r=document.createElement("div");r.className="date-row";
+          var l=document.createElement("label");l.textContent="Day "+(idx+1);
+          var inp=document.createElement("input");inp.type="date";inp.value=(v.dates||[])[idx]||"";
+          inp.onchange=function(){var vv=answers[f.id]||{};var d=(vv.dates||[]).slice();d[idx]=inp.value;answers[f.id]=Object.assign({},vv,{dates:d});updateProgress();};
+          r.appendChild(l);r.appendChild(inp);datesArea.appendChild(r);
+        })(i);
+      }
+    }else if(v.mode==="range"){
+      var r1=document.createElement("div");r1.className="date-row";
+      var l1=document.createElement("label");l1.textContent="First day";
+      var i1=document.createElement("input");i1.type="date";i1.value=v.rangeStart||"";
+      i1.onchange=function(){answers[f.id]=Object.assign({},answers[f.id]||{},{rangeStart:i1.value});updateProgress();};
+      r1.appendChild(l1);r1.appendChild(i1);datesArea.appendChild(r1);
+      var r2=document.createElement("div");r2.className="date-row";
+      var l2=document.createElement("label");l2.textContent="Last day";
+      var i2=document.createElement("input");i2.type="date";i2.value=v.rangeEnd||"";
+      i2.onchange=function(){answers[f.id]=Object.assign({},answers[f.id]||{},{rangeEnd:i2.value});updateProgress();};
+      r2.appendChild(l2);r2.appendChild(i2);datesArea.appendChild(r2);
+    }
+  }
+  ["Single date","Multiple dates","Date range"].forEach(function(m,mi){
+    var modes=["single","multiple","range"];
+    var b=document.createElement("button");b.type="button";
+    b.className="pill"+(val.mode===modes[mi]?" on":"");b.textContent=m;
+    b.onclick=function(){
+      var v=answers[f.id]||{};answers[f.id]=Object.assign({},v,{mode:modes[mi]});
+      modeRow.querySelectorAll(".pill").forEach(function(p){p.classList.remove("on");});
+      b.classList.add("on");renderDatesArea();updateProgress();
+    };
+    modeRow.appendChild(b);
+  });
+  renderDatesArea();div.appendChild(modeRow);div.appendChild(datesArea);return div;
+}
+
+function isFieldFilled(f){
+  if(f.type==="equiplist")return equipItems.filter(function(x){return x.trim();}).length>0;
+  if(f.type==="multiformat"){var v=answers["videoType"];return !!(v&&v.length);}
+  if(f.type==="shootdates"){var v=answers[f.id];return !!(v&&v.mode);}
+  if(f.type==="locations"){var v=answers[f.id];return !!(v&&v.selected&&v.selected.length);}
+  var v=answers[f.id];return Array.isArray(v)?v.length>0:!!(v&&String(v).trim());
+}
+
+function calcPct(){
+  var sections=getSections();var total=0,filled=0;
+  sections.forEach(function(s){
+    if(s.type==="script"){total++;if((scriptMode.script&&scriptRows.filter(function(r){return r.vo||r.visuals;}).length)||(scriptMode.interview&&interviewQuestions.filter(function(q){return q.trim();}).length))filled++;return;}
+    s.fields.forEach(function(f){total++;if(isFieldFilled(f))filled++;});
+  });
+  return total?Math.round(filled/total*100):0;
+}
+
+function updateProgress(){
+  var pct=calcPct();
+  var fill=document.getElementById("prog-fill");var pctEl=document.getElementById("prog-pct");
+  if(fill)fill.style.width=pct+"%";
+  if(pctEl)pctEl.textContent=pct+"% complete";
+}
+
+function formBack(){if(currentStep===0)setStep("type");else{currentStep--;renderForm();}}
+function formNext(){var sections=getSections();if(currentStep===sections.length-1)setStep("shotlist");else{currentStep++;renderForm();}}
+function shotBack(){setStep("form");}
+
+// ---- Shot list ----
+function renderShotList(){
+  var tbody=document.getElementById("shot-tbody");tbody.innerHTML="";
+  var header=document.getElementById("shot-header");
+  header.style.display=shotItems.length?"block":"none";
+  shotItems.forEach(function(shot,i){
+    var row=document.createElement("div");row.className="shot-row";
+    var sel=document.createElement("select");
+    SHOT_TYPES.forEach(function(st){var o=document.createElement("option");o.value=st;o.textContent=st||"\u2014 no type \u2014";sel.appendChild(o);});
+    sel.value=shot.type||"";sel.onchange=function(){shotItems[i].type=sel.value;};
+    var inp=document.createElement("input");inp.type="text";inp.placeholder="Describe the shot...";inp.value=shot.desc||"";
+    inp.oninput=function(){shotItems[i].desc=inp.value;};
+    var db=document.createElement("button");db.className="del-btn";db.textContent="\u2715";db.type="button";
+    db.onclick=(function(idx){return function(){shotItems.splice(idx,1);renderShotList();};})(i);
+    row.appendChild(sel);row.appendChild(inp);row.appendChild(db);tbody.appendChild(row);
+  });
+}
+
+function addShotRow(){shotItems.push({type:"",desc:""});renderShotList();document.getElementById("shot-header").style.display="block";}
+
+function aiShotList(){
+  var btn=document.getElementById("ai-shot-btn");btn.textContent="Building...";btn.disabled=true;
+  var scriptSummary=scriptRows.map(function(r,i){return "Row "+(i+1)+": VO: "+r.vo+" | Visuals: "+r.visuals;}).join("\n");
+  var ctx="Brand: "+getBrandLabel()+"\nProject: "+(answers.projectName||"untitled")+"\nObjective: "+(answers.objective||"")+"\nScript:\n"+scriptSummary;
+  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
+      messages:[{role:"user",content:"You are a video production coordinator for a food and BBQ brand. Generate a shot list. Return ONLY a JSON array of objects with keys \"type\" (one of: WS (Wide Shot), MS (Medium Shot), CU (Close-Up), ECU (Extreme Close-Up), OTS (Over the Shoulder), POV, Slow Motion, or empty string) and \"desc\" (concise shot description). No markdown, just the array.\n\nBrief:\n"+ctx}]
+    })
+  }).then(function(r){return r.json();}).then(function(data){
+    var text="";if(data.content)data.content.forEach(function(b){if(b.type==="text")text+=b.text;});
+    try{var p=JSON.parse(text.replace(/```json|```/g,"").trim());if(Array.isArray(p)&&p.length){shotItems=p;renderShotList();}}catch(e){console.error(e);}
+    btn.textContent="Build shot list with AI";btn.disabled=false;
+    document.getElementById("shot-header").style.display=shotItems.length?"block":"none";
+  }).catch(function(e){console.error(e);btn.textContent="Build shot list with AI";btn.disabled=false;});
+}
+
+// ---- Doc generation ----
+function escXml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+function safeDate(v){
+  if(!v)return "";
+  try{
+    if(typeof v==="string"&&v.match(/^\d{4}-\d{2}-\d{2}$/)){
+      var parts=v.split("-");return parts[1]+"/"+parts[2]+"/"+parts[0];
+    }
+    return String(v);
+  }catch(e){return "";}
+}
+
+function fileDate(){
+  var d=new Date();
+  var m=String(d.getMonth()+1).padStart(2,"0");
+  var dd=String(d.getDate()).padStart(2,"0");
+  var y=d.getFullYear();
+  return m+dd+y;
+}
+
+function formatShootDates(v){
+  if(!v||!v.mode)return "";
+  try{
+    if(v.mode==="single")return safeDate(v.dates[0]);
+    if(v.mode==="range")return safeDate(v.rangeStart)+" through "+safeDate(v.rangeEnd);
+    if(v.mode==="multiple")return (v.dates||[]).filter(function(d){return d;}).map(safeDate).join(", ");
+  }catch(e){return "";}
+  return "";
+}
+
+function formatLocations(v){
+  if(!v||!v.selected||!v.selected.length)return "";
+  return v.selected.map(function(l){return l==="Other"?(v.other||"Other"):l;}).join(", ");
+}
+
+function getVal(id,type){
+  try{
+    if(type==="shootdates")return formatShootDates(answers[id]);
+    if(type==="locations")return formatLocations(answers[id]);
+    if(type==="equiplist")return equipItems.filter(function(x){return x.trim();}).join("\n");
+    if(type==="multiformat"){var v=answers[id];return Array.isArray(v)?v.join(", "):"";}
+    if(type==="date")return safeDate(answers[id]);
+    var v=answers[id];if(!v&&v!==0)return "";
+    if(Array.isArray(v))return v.join(", ");
+    return String(v).trim();
+  }catch(e){return "";}
+}
+
+function isSectionFilled(sec){
+  if(sec.type==="script")return (scriptMode.script&&scriptRows.filter(function(r){return r.vo||r.visuals;}).length>0)||(scriptMode.interview&&interviewQuestions.filter(function(q){return q.trim();}).length>0);
+  return sec.fields.some(function(f){
+    if(f.type==="equiplist")return equipItems.filter(function(x){return x.trim();}).length>0;
+    return isFieldFilled(f);
+  });
+}
+
+function generateDoc(){
+  var btn=document.getElementById("generate-btn");
+  if(btn){btn.textContent="Generating...";btn.disabled=true;}
+  function tryGenerate(attempts){
+    if(typeof JSZip!=="undefined"){doGenerate();return;}
+    if(attempts<=0){if(btn){btn.textContent="Generate brief \u2192";btn.disabled=false;}alert("JSZip failed to load. Check your internet connection.");return;}
+    setTimeout(function(){tryGenerate(attempts-1);},400);
+  }
+  tryGenerate(15);
+}
+
+function doGenerate(){
+  var btn=document.getElementById("generate-btn");
+  try{saveBrief();}catch(e){console.warn("saveBrief failed:",e);}
+  try{
+    function para(text,opts){
+      opts=opts||{};
+      var rPr=[(opts.bold?"<w:b/>":""),(opts.size?"<w:sz w:val=\""+opts.size+"\"/><w:szCs w:val=\""+opts.size+"\"/>":""),(opts.color&&opts.color!=="auto"?"<w:color w:val=\""+opts.color+"\"/>":"")].filter(Boolean).join("");
+      var pPr=opts.before?"<w:pPr><w:spacing w:before=\""+opts.before+"\"/></w:pPr>":"";
+      return "<w:p>"+pPr+"<w:r>"+(rPr?"<w:rPr>"+rPr+"</w:rPr>":"")+"<w:t xml:space=\"preserve\">"+escXml(text)+"</w:t></w:r></w:p>";
+    }
+    function secHdr(label){return "<w:p><w:pPr><w:spacing w:before=\"320\"/><w:shd w:val=\"clear\" w:color=\"auto\" w:fill=\"EEEDFE\"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val=\"3C3489\"/><w:sz w:val=\"24\"/><w:szCs w:val=\"24\"/></w:rPr><w:t>"+escXml(label)+"</w:t></w:r></w:p>";}
+    function fRow(label,val){return "<w:p><w:pPr><w:spacing w:before=\"80\"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val=\"20\"/></w:rPr><w:t xml:space=\"preserve\">"+escXml(label)+": </w:t></w:r><w:r><w:rPr><w:sz w:val=\"20\"/></w:rPr><w:t xml:space=\"preserve\">"+escXml(val)+"</w:t></w:r></w:p>";}
+
+    var sections=getSections();
+    var typeLabel=(getType()||{label:""}).label;
+    var brandLabel=getBrandLabel();
+    var projectName=answers.projectName||"Creative Brief";
+    var headline=projectName+" \u2014 Creative Brief";
+    var borders="<w:tblBorders><w:top w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"CCCCCC\"/><w:left w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"CCCCCC\"/><w:bottom w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"CCCCCC\"/><w:right w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"CCCCCC\"/><w:insideH w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"CCCCCC\"/><w:insideV w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"CCCCCC\"/></w:tblBorders>";
+
+    var secBlocks=sections.filter(function(sec){return sec.type!=="script"&&isSectionFilled(sec);}).map(function(sec){
+      var filledFields=sec.fields.filter(function(f){
+        if(f.id==="projectName")return false;
+        if(f.type==="equiplist")return equipItems.filter(function(x){return x.trim();}).length>0;
+        return isFieldFilled(f);
+      });
+      if(!filledFields.length)return "";
+      return [secHdr(sec.label)].concat(filledFields.map(function(f){return fRow(f.label,getVal(f.id,f.type));})).join("\n");
+    }).filter(Boolean).join("\n");
+
+    var shotOutput="";
+    var filledShots=shotItems.filter(function(s){return s.desc&&s.desc.trim();});
+    if(filledShots.length){
+      shotOutput=secHdr("Shot list");
+      filledShots.forEach(function(shot){
+        var label=(shot.type?shot.type+" \u2014 ":"")+shot.desc;
+        shotOutput+="<w:p><w:pPr><w:spacing w:before=\"80\"/></w:pPr><w:r><w:rPr><w:sz w:val=\"20\"/></w:rPr><w:t xml:space=\"preserve\">\u2610  "+escXml(label)+"</w:t></w:r></w:p>";
+      });
+    }
+
+    var scriptOutput="";
+    var filledScript=scriptRows.filter(function(r){return (r.vo&&r.vo.trim())||(r.visuals&&r.visuals.trim());});
+    if(scriptMode.script&&filledScript.length){
+      var shdr2="<w:tr><w:tc><w:tcPr><w:tcW w:w=\"4680\" w:type=\"dxa\"/><w:shd w:val=\"clear\" w:color=\"auto\" w:fill=\"EEEDFE\"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val=\"20\"/><w:color w:val=\"3C3489\"/></w:rPr><w:t>Voiceover / on-camera dialogue</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w=\"4680\" w:type=\"dxa\"/><w:shd w:val=\"clear\" w:color=\"auto\" w:fill=\"EEEDFE\"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val=\"20\"/><w:color w:val=\"3C3489\"/></w:rPr><w:t>Matching visuals</w:t></w:r></w:p></w:tc></w:tr>";
+      var drows=filledScript.map(function(row){return "<w:tr><w:tc><w:tcPr><w:tcW w:w=\"4680\" w:type=\"dxa\"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val=\"20\"/></w:rPr><w:t xml:space=\"preserve\">"+escXml(row.vo||"")+"</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w=\"4680\" w:type=\"dxa\"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val=\"20\"/></w:rPr><w:t xml:space=\"preserve\">"+escXml(row.visuals||"")+"</w:t></w:r></w:p></w:tc></w:tr>";}).join("");
+      scriptOutput+=secHdr("Script")+"<w:tbl><w:tblPr><w:tblW w:w=\"9360\" w:type=\"dxa\"/>"+borders+"</w:tblPr>"+shdr2+drows+"</w:tbl>";
+    }
+
+    var filledIQ=interviewQuestions.filter(function(q){return q.trim();});
+    if(scriptMode.interview&&filledIQ.length){
+      scriptOutput+=secHdr("Interview questions");
+      filledIQ.forEach(function(q,i){
+        scriptOutput+="<w:p><w:pPr><w:spacing w:before=\"80\"/></w:pPr><w:r><w:rPr><w:sz w:val=\"20\"/></w:rPr><w:t xml:space=\"preserve\">"+(i+1)+". "+escXml(q)+"</w:t></w:r></w:p>";
+      });
+    }
+
+    var body=[
+      para(headline,{bold:true,size:36,color:"3C3489"}),
+      para(brandLabel+" \u2014 "+typeLabel,{size:24,color:"7F77DD"}),
+      para(" "),
+      secBlocks,
+      shotOutput,
+      scriptOutput
+    ].join("\n");
+
+    var docXml="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><w:document xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\"><w:body>"+body+"</w:body></w:document>";
+    var relsXml="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/></Relationships>";
+    var stylesXml="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><w:styles xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\"><w:style w:type=\"paragraph\" w:styleId=\"Normal\"><w:name w:val=\"Normal\"/><w:rPr><w:sz w:val=\"20\"/></w:rPr></w:style><w:style w:type=\"table\" w:styleId=\"TableGrid\"><w:name w:val=\"Table Grid\"/></w:style></w:styles>";
+    var ctXml="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/word/document.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml\"/><Override PartName=\"/word/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml\"/></Types>";
+    var topRels="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"word/document.xml\"/></Relationships>";
+
+    var zip=new JSZip();
+    zip.file("[Content_Types].xml",ctXml);zip.file("_rels/.rels",topRels);
+    zip.file("word/document.xml",docXml);zip.file("word/styles.xml",stylesXml);
+    zip.file("word/_rels/document.xml.rels",relsXml);
+    zip.generateAsync({type:"blob"}).then(function(blob){
+      var rawName=(answers.projectName||"Creative_Brief").replace(/[^a-z0-9\s]/gi,"").trim().replace(/\s+/g,"_")||"Creative_Brief";
+      var fileName=rawName+"_"+fileDate()+"_Brief.docx";
+      if(btn){btn.textContent="Generate brief \u2192";btn.disabled=false;}
+      var url=URL.createObjectURL(blob);
+      var dlBox=document.getElementById("dl-box");
+      dlBox.innerHTML="<p style='font-size:14px;font-weight:600;margin-bottom:12px;'>Your brief is ready!</p>"
+        +"<p style='font-size:13px;color:#555;margin-bottom:16px;'>Click the link below to download. If it doesn't work automatically, right-click and choose <strong>Save Link As...</strong></p>"
+        +"<a href='"+url+"' download='"+fileName+"' style='display:inline-block;padding:10px 24px;background:#534AB7;color:#fff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;'>\u2193 "+fileName+"</a>"
+        +"<div style='margin-top:14px;'><button onclick='firefoxFallback(\""+fileName+"\")' class='btn-sec' style='font-size:13px;'>Firefox fallback \u2014 open in new tab</button></div>";
+      window._lastBlob=blob;window._lastFileName=fileName;
+      setStep("done");
+    });
+  }catch(e){
+    console.error("doGenerate error:",e);
+    if(btn){btn.textContent="Generate brief \u2192";btn.disabled=false;}
+    alert("Error generating brief: "+e.message);
+  }
+}
+
+function firefoxFallback(fileName){
+  var blob=window._lastBlob;if(!blob)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var win=window.open("","_blank");
+    if(win){
+      win.document.write("<html><body style='margin:2rem;font-family:sans-serif;'><h2 style='margin-bottom:1rem;'>"+fileName+"</h2><p style='margin-bottom:1.5rem;color:#555;'>Right-click the link below and choose <strong>Save Link As...</strong></p><a href='"+e.target.result+"' download='"+fileName+"' style='font-size:16px;font-weight:700;color:#534AB7;'>\u2193 "+fileName+"</a></body></html>");
+      win.document.close();
+    }
+  };
+  reader.readAsDataURL(blob);
+}
+
+// ---- Admin ----
+function openAdmin(){
+  adminTypes=JSON.parse(JSON.stringify(projectTypes));adminSelected=0;
+  renderAdminTypePills();renderAdminFields();
+  document.getElementById("admin-overlay").classList.remove("hidden");
+}
+function closeAdmin(){document.getElementById("admin-overlay").classList.add("hidden");}
+
+function renderAdminTypePills(){
+  var el=document.getElementById("admin-type-pills");el.innerHTML="";
+  adminTypes.forEach(function(t,i){
+    var span=document.createElement("span");span.className="type-pill"+(i===adminSelected?" active":"");
+    span.onclick=function(){adminSelected=i;renderAdminTypePills();renderAdminFields();};
+    span.appendChild(document.createTextNode(t.label));
+    if(adminTypes.length>1){
+      var x=document.createElement("button");x.textContent="\u2715";
+      x.style.cssText="background:none;border:none;cursor:pointer;font-size:13px;color:#aaa;padding:0 0 0 4px;";
+      x.onclick=function(e){e.stopPropagation();adminTypes.splice(i,1);adminSelected=0;renderAdminTypePills();renderAdminFields();};
+      span.appendChild(x);
+    }
+    el.appendChild(span);
+  });
+  var secSel=document.getElementById("new-field-section");
+  if(secSel){
+    secSel.innerHTML="";
+    (adminTypes[adminSelected]||{sections:[]}).sections.forEach(function(s,i){
+      var o=document.createElement("option");o.value=i;o.textContent=s.label;secSel.appendChild(o);
+    });
+  }
+}
+
+function renderAdminFields(){
+  var el=document.getElementById("admin-fields-area");el.innerHTML="";
+  var pt=adminTypes[adminSelected];if(!pt)return;
+  pt.sections.forEach(function(sec,si){
+    var slbl=document.createElement("div");slbl.className="section-label";slbl.textContent=sec.label;el.appendChild(slbl);
+    sec.fields.forEach(function(f,fi){
+      var row=document.createElement("div");row.className="field-row";
+      var inp=document.createElement("input");inp.type="text";inp.value=f.label;
+      inp.onchange=function(){adminTypes[adminSelected].sections[si].fields[fi].label=inp.value;};
+      var tl=document.createElement("span");tl.className="type-label";tl.textContent=f.type;
+      var xb=document.createElement("button");xb.textContent="\u2715";
+      xb.style.cssText="background:none;border:none;cursor:pointer;font-size:16px;color:#aaa;";
+      xb.onclick=function(){adminTypes[adminSelected].sections[si].fields.splice(fi,1);renderAdminFields();};
+      row.appendChild(inp);row.appendChild(tl);row.appendChild(xb);el.appendChild(row);
+    });
+  });
+}
+
+function adminAddType(){
+  var lbl=document.getElementById("new-type-input").value.trim();if(!lbl)return;
+  var id=lbl.toLowerCase().replace(/\s+/g,"_");
+  adminTypes.push({id:id,label:lbl,hasScript:false,sections:JSON.parse(JSON.stringify(SHARED_SECTIONS))});
+  document.getElementById("new-type-input").value="";
+  adminSelected=adminTypes.length-1;
+  renderAdminTypePills();renderAdminFields();
+}
+
+function adminAddField(){
+  var lbl=document.getElementById("new-field-label").value.trim();if(!lbl)return;
+  var type=document.getElementById("new-field-type").value;
+  var secIdx=Number(document.getElementById("new-field-section").value);
+  var id=lbl.toLowerCase().replace(/\s+/g,"_")+"_"+Date.now();
+  adminTypes[adminSelected].sections[secIdx].fields.push({id:id,label:lbl,type:type,placeholder:""});
+  document.getElementById("new-field-label").value="";renderAdminFields();
+}
+
+function adminSave(){
+  projectTypes=JSON.parse(JSON.stringify(adminTypes));
+  saveTypesToStorage(projectTypes);boot();closeAdmin();
+}
+
+boot();
+</script>
+</body>
+</html>
