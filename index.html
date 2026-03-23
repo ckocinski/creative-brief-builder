@@ -119,6 +119,7 @@ textarea{resize:vertical;line-height:1.6;min-height:80px;}
         <option value="PS Seasoning">PS Seasoning</option>
         <option value="Pro Smoker">Pro Smoker</option>
         <option value="PS Seasoning + Pro Smoker">PS Seasoning + Pro Smoker</option>
+        <option value="Private Label">Private Label</option>
         <option value="Other">Other</option>
       </select>
     </div>
@@ -126,7 +127,10 @@ textarea{resize:vertical;line-height:1.6;min-height:80px;}
       <label>Brand name</label>
       <input type="text" id="brand-other-input" placeholder="Enter brand name..."/>
     </div>
-    <button class="btn" onclick="startType()">Next &#8594;</button>
+    <div id="brand-coming-soon" class="hidden" style="margin-bottom:1rem;padding:14px 16px;border-radius:8px;background:#fff8e1;border:1px solid #ffe082;font-size:14px;color:#7a5c00;">
+      <strong>Private Label</strong> briefs are coming soon. This form is still being built.
+    </div>
+    <button id="brand-next-btn" class="btn" onclick="startType()">Next &#8594;</button>
   </div>
 
   <div id="step-type" class="hidden card">
@@ -290,8 +294,7 @@ var SHARED_SECTIONS=[
 
 var DEFAULT_TYPES=[
   {id:"photovideo",label:"Photo / Video Shoot",hasScript:true,sections:JSON.parse(JSON.stringify(SHARED_SECTIONS))},
-  {id:"graphicdesign",label:"Graphic Design",hasScript:false,comingSoon:true,sections:[]},
-  {id:"privatelabel",label:"Private Label Design",hasScript:false,comingSoon:true,sections:[]}
+  {id:"graphicdesign",label:"Graphic Design",hasScript:false,comingSoon:true,sections:[]}
 ];
 
 function loadTypes(){try{var s=localStorage.getItem(LS_TYPES_KEY);return s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_TYPES));}catch(e){return JSON.parse(JSON.stringify(DEFAULT_TYPES));}}
@@ -328,6 +331,8 @@ function getSections(){return getSectionsForType(getType());}
 function onBrandChange(){
   var val=document.getElementById("brand-select").value;
   document.getElementById("brand-other-wrap").classList.toggle("hidden",val!=="Other");
+  document.getElementById("brand-coming-soon").classList.toggle("hidden",val!=="Private Label");
+  document.getElementById("brand-next-btn").classList.toggle("hidden",val==="Private Label");
 }
 function onTypeChange(){
   var val=document.getElementById("type-select").value;
