@@ -645,23 +645,25 @@ function renderLocations(f){
   var pills=document.createElement("div");pills.className="pill-group";pills.style.marginBottom="12px";
 
   var otherWrap=document.createElement("div");
-  otherWrap.style.display=(val.selected||[]).includes("Other")?"block":"none";
-  otherWrap.style.marginTop="10px";
+  otherWrap.id="location-other-wrap-"+f.id;
+  otherWrap.style.cssText="display:"+(((val.selected||[]).includes("Other"))?"block":"none")+";margin-top:12px;padding:12px;background:#f9f9f9;border-radius:8px;border:1px solid #eee;";
 
-  // Location name
-  var nameLbl=document.createElement("label");nameLbl.textContent="Location name";nameLbl.style.marginBottom="6px";
+  var nameLbl=document.createElement("label");nameLbl.textContent="Location name";
   var nameInp=document.createElement("input");nameInp.type="text";nameInp.placeholder="e.g. Joe's Barn";nameInp.value=val.other||"";nameInp.style.marginBottom="12px";
   nameInp.oninput=function(){var v=answers[f.id]||{};answers[f.id]=Object.assign({},v,{other:nameInp.value});};
 
-  // Address
-  var addrLbl=document.createElement("label");addrLbl.textContent="Address";addrLbl.style.marginBottom="6px";
-  var addrRow=document.createElement("div");addrRow.style.cssText="display:flex;align-items:center;gap:12px;";
+  var addrLbl=document.createElement("label");addrLbl.textContent="Address";
+  var addrRow=document.createElement("div");addrRow.style.cssText="display:flex;align-items:center;gap:12px;margin-top:6px;";
   var addrInp=document.createElement("input");addrInp.type="text";addrInp.placeholder="e.g. 123 Main St, Green Bay, WI";addrInp.value=val.otherAddress||"";addrInp.style.flex="1";
   addrInp.disabled=!!(val.addressTbd);addrInp.style.opacity=val.addressTbd?"0.4":"1";
   addrInp.oninput=function(){var v=answers[f.id]||{};answers[f.id]=Object.assign({},v,{otherAddress:addrInp.value});};
+
   var tbdLabel=document.createElement("label");tbdLabel.style.cssText="display:flex;align-items:center;gap:6px;font-size:13px;color:#555;white-space:nowrap;cursor:pointer;flex-shrink:0;margin:0;font-weight:400;";
   var tbdCb=document.createElement("input");tbdCb.type="checkbox";tbdCb.checked=!!(val.addressTbd);tbdCb.style.cssText="width:15px;height:15px;cursor:pointer;accent-color:#534AB7;";
-  tbdCb.onchange=function(){var v=answers[f.id]||{};answers[f.id]=Object.assign({},v,{addressTbd:tbdCb.checked});addrInp.disabled=tbdCb.checked;addrInp.style.opacity=tbdCb.checked?"0.4":"1";};
+  tbdCb.onchange=function(){
+    var v=answers[f.id]||{};answers[f.id]=Object.assign({},v,{addressTbd:tbdCb.checked});
+    addrInp.disabled=tbdCb.checked;addrInp.style.opacity=tbdCb.checked?"0.4":"1";
+  };
   tbdLabel.appendChild(tbdCb);tbdLabel.appendChild(document.createTextNode("Address TBD"));
   addrRow.appendChild(addrInp);addrRow.appendChild(tbdLabel);
 
@@ -670,7 +672,8 @@ function renderLocations(f){
   LOCATION_OPTIONS.forEach(function(loc){
     var b=document.createElement("button");b.className="pill"+((val.selected||[]).includes(loc)?" on":"");b.textContent=loc;b.type="button";
     b.onclick=function(){
-      var v=answers[f.id]||{selected:[],other:"",otherAddress:"",addressTbd:false};var sel=(v.selected||[]).slice();
+      var v=answers[f.id]||{selected:[],other:"",otherAddress:"",addressTbd:false};
+      var sel=(v.selected||[]).slice();
       if(sel.includes(loc))sel=sel.filter(function(x){return x!==loc;});else sel=sel.concat([loc]);
       answers[f.id]=Object.assign({},v,{selected:sel});
       b.classList.toggle("on",sel.includes(loc));
