@@ -283,6 +283,7 @@ var SHARED_SECTIONS=[
     {id:"aspectRatios",label:"Formats / aspect ratios needed",type:"multicheck",options:["16:9 (YouTube / web)","9:16 (Reels / TikTok)","1:1 (Square)","4:5 (Feed)","4K","1080p","Print / high-res","White background / cutout"]}
   ]},
   {id:"branding",label:"Branding & mandatories",fields:[
+    {id:"psProducts",label:"PS Products needed for shoot",type:"textarea",placeholder:"List all PS Seasoning products required for this shoot (seasonings, sauces, kits, etc.)"},
     {id:"brandVersions",label:"Brand versions needed",type:"textarea",placeholder:"e.g. PS Seasoning version + Pro Smoker version"},
     {id:"mandatories",label:"Mandatory elements",type:"textarea",placeholder:"Logo treatments, URLs, legal text, CTAs that must appear."},
     {id:"references",label:"Reference / inspiration",type:"textarea",placeholder:"Links, past content, or creative direction notes."}
@@ -752,7 +753,14 @@ function formatShootDates(v){
 
 function formatLocations(v){
   if(!v||!v.selected||!v.selected.length)return "";
-  return v.selected.map(function(l){return l==="Other"?(v.other||"Other"):l;}).join(", ");
+  return v.selected.map(function(l){
+    if(l==="Other"){
+      var name=v.other||"Other";
+      var addr=v.otherAddress?(" — "+v.otherAddress):"";
+      return name+addr;
+    }
+    return l;
+  }).join(", ");
 }
 
 function getVal(id,type){
