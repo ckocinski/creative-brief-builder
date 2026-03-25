@@ -74,7 +74,10 @@ textarea{resize:vertical;line-height:1.6;min-height:80px;}
 .date-row label{min-width:55px;margin:0;font-size:13px;color:#555;}
 .date-row input{width:auto;flex:1;}
 .brand-badge{display:inline-block;padding:4px 12px;border-radius:20px;background:#EEEDFE;color:#3C3489;font-size:13px;font-weight:500;margin-bottom:1rem;}
-.empty-state{text-align:center;padding:3rem 1rem;color:#888;font-size:14px;}
+.drag-handle{cursor:grab;color:#ccc;font-size:16px;padding:2px 6px;user-select:none;line-height:1;}
+.drag-handle:hover{color:#888;}
+.dragging{opacity:0.4;}
+.drag-over{border-top:2px solid #7F77DD;}
 .iq-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;}
 .iq-row textarea{flex:1;font-size:13px;min-height:48px;}
 .script-toggle{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1.25rem;}
@@ -183,6 +186,7 @@ textarea{resize:vertical;line-height:1.6;min-height:80px;}
     </div>
     <div id="shot-header" style="display:none;">
       <div style="display:flex;gap:8px;margin-bottom:4px;padding:0 2px;">
+        <span style="flex:0 0 24px;"></span>
         <span style="flex:0 0 175px;font-size:12px;font-weight:600;color:#888;">Shot type</span>
         <span style="flex:1;font-size:12px;font-weight:600;color:#888;">Description</span>
         <span style="flex:0 0 32px;"></span>
@@ -245,7 +249,7 @@ textarea{resize:vertical;line-height:1.6;min-height:80px;}
 <script>
 var LOCATION_OPTIONS=["Culinary Center","Innovation Center","Courtyard","Richfield","Offsite","Other"];
 var SHOT_TYPES=["","WS (Wide Shot)","MS (Medium Shot)","CU (Close-Up)","ECU (Extreme Close-Up)","OTS (Over the Shoulder)","POV","Slow Motion"];
-var EQUIPMENT_LIST=["2 Octo Lights","3 Light Kit","Audio Recorder","Camera (DSLR)","Camera (DSLR) — Second","Camera (Smartphone)","Lavaliere Microphones","Rode Shotgun Mic w/ Wind Screen","Ronin-S","SD Cards","Smartphone Gimbal","Tripods"];
+var EQUIPMENT_LIST=["2 Octo Lights","3 Light Kit","Audio Recorder","Camera — DSLR","Camera — DSLR Second","Camera — Smartphone","Lavaliere Microphones","Rode Shotgun Mic w/ Wind Screen","Ronin-S","SD Cards","Smartphone Gimbal","Tripods"];
 var FORMAT_OPTIONS=["PSU (Long Form Tutorial)","Product Assets","Recipe Reel / Social","Lifestyle Photo / Video","Event Coverage","Training Video","Features & Benefits Video","Other"];
 var LS_TYPES_KEY="cb_project_types";
 var LS_BRIEFS_KEY="cb_saved_briefs";
@@ -495,18 +499,23 @@ function renderScriptSection(){
       bodyWrap.appendChild(addRowBtn);
       var tableWrap=document.createElement("div");tableWrap.style.overflowX="auto";
       var table=document.createElement("table");table.className="script-table";
-      table.innerHTML="<thead><tr><th style='width:47%'>Voiceover / on-camera dialogue</th><th style='width:47%'>Matching visuals</th><th style='width:6%'></th></tr></thead>";
+      table.innerHTML="<thead><tr><th style='width:24px;'></th><th style='width:44%'>Voiceover / on-camera dialogue</th><th style='width:44%'>Matching visuals</th><th style='width:6%'></th></tr></thead>";
       var tbody=document.createElement("tbody");table.appendChild(tbody);tableWrap.appendChild(table);bodyWrap.appendChild(tableWrap);
       function rebuildTable(){
         tbody.innerHTML="";
         if(!scriptRows.length)scriptRows.push({vo:"",visuals:""});
         scriptRows.forEach(function(row,i){
           var tr=document.createElement("tr");
+          var tdHandle=document.createElement("td");tdHandle.style.width="24px";tdHandle.style.verticalAlign="middle";
+          var handle=document.createElement("span");handle.className="drag-handle";handle.textContent="\u2630";handle.title="Drag to reorder";
+          tdHandle.appendChild(handle);
           var td1=document.createElement("td");var ta1=document.createElement("textarea");ta1.value=row.vo||"";ta1.style.width="100%";ta1.oninput=function(){scriptRows[i].vo=ta1.value;};td1.appendChild(ta1);
           var td2=document.createElement("td");var ta2=document.createElement("textarea");ta2.value=row.visuals||"";ta2.style.width="100%";ta2.oninput=function(){scriptRows[i].visuals=ta2.value;};td2.appendChild(ta2);
           var td3=document.createElement("td");var db=document.createElement("button");db.className="del-btn";db.textContent="\u2715";db.type="button";
           db.onclick=(function(idx){return function(){scriptRows.splice(idx,1);rebuildTable();};})(i);
-          td3.appendChild(db);tr.appendChild(td1);tr.appendChild(td2);tr.appendChild(td3);tbody.appendChild(tr);
+          td3.appendChild(db);tr.appendChild(tdHandle);tr.appendChild(td1);tr.appendChild(td2);tr.appendChild(td3);
+          makeDraggable(tr,i,scriptRows,rebuildTable);
+          tbody.appendChild(tr);
         });
       }
       rebuildTable();
@@ -712,11 +721,36 @@ function formBack(){if(currentStep===0)setStep("type");else{currentStep--;render
 function formNext(){var sections=getSections();if(currentStep===sections.length-1)setStep("shotlist");else{currentStep++;renderForm();}}
 function shotBack(){setStep("form");}
 
+// ---- Drag and drop helpers ----
+var dragSrcIndex=null;
+var dragList=null;
+var dragRebuild=null;
+
+function makeDraggable(el,index,list,rebuild){
+  el.draggable=true;
+  el.addEventListener("dragstart",function(e){
+    dragSrcIndex=index;dragList=list;dragRebuild=rebuild;
+    setTimeout(function(){el.classList.add("dragging");},0);
+    e.dataTransfer.effectAllowed="move";
+  });
+  el.addEventListener("dragend",function(){el.classList.remove("dragging");document.querySelectorAll(".drag-over").forEach(function(x){x.classList.remove("drag-over");});});
+  el.addEventListener("dragover",function(e){e.preventDefault();e.dataTransfer.dropEffect="move";el.classList.add("drag-over");});
+  el.addEventListener("dragleave",function(){el.classList.remove("drag-over");});
+  el.addEventListener("drop",function(e){
+    e.preventDefault();el.classList.remove("drag-over");
+    if(dragSrcIndex===null||dragSrcIndex===index)return;
+    var moved=dragList.splice(dragSrcIndex,1)[0];
+    dragList.splice(index,0,moved);
+    dragSrcIndex=null;dragRebuild();
+  });
+}
+
 function renderShotList(){
   var tbody=document.getElementById("shot-tbody");tbody.innerHTML="";
   var header=document.getElementById("shot-header");header.style.display=shotItems.length?"block":"none";
   shotItems.forEach(function(shot,i){
-    var row=document.createElement("div");row.className="shot-row";
+    var row=document.createElement("div");row.className="shot-row";row.style.alignItems="center";
+    var handle=document.createElement("span");handle.className="drag-handle";handle.textContent="\u2630";handle.title="Drag to reorder";
     var sel=document.createElement("select");
     SHOT_TYPES.forEach(function(st){var o=document.createElement("option");o.value=st;o.textContent=st||"\u2014 no type \u2014";sel.appendChild(o);});
     sel.value=shot.type||"";sel.onchange=function(){shotItems[i].type=sel.value;};
@@ -724,7 +758,9 @@ function renderShotList(){
     inp.oninput=function(){shotItems[i].desc=inp.value;};
     var db=document.createElement("button");db.className="del-btn";db.textContent="\u2715";db.type="button";
     db.onclick=(function(idx){return function(){shotItems.splice(idx,1);renderShotList();};})(i);
-    row.appendChild(sel);row.appendChild(inp);row.appendChild(db);tbody.appendChild(row);
+    row.appendChild(handle);row.appendChild(sel);row.appendChild(inp);row.appendChild(db);
+    makeDraggable(row,i,shotItems,renderShotList);
+    tbody.appendChild(row);
   });
 }
 
@@ -756,7 +792,12 @@ function formatLocations(v){
   return v.selected.map(function(l){
     if(l==="Other"){
       var name=v.other||"Other";
-      var addr=v.otherAddress?v.otherAddress:"TBD";
+      var addr=v.addressTbd?"TBD":(v.otherAddress||"TBD");
+      return name+" — Address: "+addr;
+    }
+    return l;
+  }).join(", ");
+}r addr=v.otherAddress?v.otherAddress:"TBD";
       return name+" — Address: "+addr;
     }
     return l;
@@ -767,7 +808,7 @@ function getVal(id,type){
   try{
     if(type==="shootdates")return formatShootDates(answers[id]);
     if(type==="locations")return formatLocations(answers[id]);
-    if(type==="equiplist")return equipItems.filter(function(x){return x.trim();}).join("\n");
+    if(type==="equiplist")return equipItems.filter(function(x){return x.trim();}).join(", ");
     if(type==="multiformat"){var v=answers[id];return Array.isArray(v)?v.join(", "):"";}
     if(type==="date")return safeDate(answers[id]);
     var v=answers[id];if(!v&&v!==0)return "";
