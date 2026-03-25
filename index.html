@@ -756,8 +756,8 @@ function formatLocations(v){
   return v.selected.map(function(l){
     if(l==="Other"){
       var name=v.other||"Other";
-      var addr=v.otherAddress?(" — "+v.otherAddress):"";
-      return name+addr;
+      var addr=v.otherAddress?v.otherAddress:"TBD";
+      return name+" — Address: "+addr;
     }
     return l;
   }).join(", ");
